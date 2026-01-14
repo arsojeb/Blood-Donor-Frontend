@@ -5,16 +5,68 @@ import API from "../api/axios";
 export default function Profile() {
   const { user, setUser } = useAuth();
   const [edit, setEdit] = useState(false);
-  const [form, setForm] = useState({ ...user });
+  const [form, setForm] = useState({
+    name: user.name || "",
+    email: user.email || "",
+    district: user.district || "",
+    upazila: user.upazila || "",
+    bloodGroup: user.bloodGroup || "",
+    avatar: user.avatar || "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const hasChanges = JSON.stringify(form) !== JSON.stringify({
+    name: user.name || "",
+    email: user.email || "",
+    district: user.district || "",
+    upazila: user.upazila || "",
+    bloodGroup: user.bloodGroup || "",
+    avatar: user.avatar || "",
+  });
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // preview locally
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm({ ...form, avatar: reader.result });
+    };
+    reader.readAsDataURL(file);
+
+    // for real backend upload, send FormData in save()
+  };
 
   const save = async () => {
+    if (!hasChanges) return;
+    setLoading(true);
+    setError("");
+
     try {
-      const res = await API.patch(`/users/profile/${user.email}`, form);
+      const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("district", form.district);
+      formData.append("upazila", form.upazila);
+      formData.append("bloodGroup", form.bloodGroup);
+
+      // if avatar is changed and is a file, append it
+      if (form.avatar && form.avatar instanceof File) {
+        formData.append("avatar", form.avatar);
+      }
+
+      const res = await API.patch(`/users/profile/${user.email}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       setUser(res.data);
       setEdit(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to update profile.");
+      setError("Failed to update profile. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,98 +85,70 @@ export default function Profile() {
         ) : (
           <button
             onClick={save}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+            disabled={loading || !hasChanges}
+            className={`px-4 py-2 rounded text-white transition ${
+              loading || !hasChanges
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
           >
-            Save
+            {loading ? "Saving..." : "Save"}
           </button>
         )}
       </div>
 
+      {error && <p className="text-red-600 mb-4">{error}</p>}
+
       <div className="flex flex-col md:flex-row gap-6">
         {/* Avatar */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 flex flex-col items-center gap-2">
           <img
             src={form.avatar || "/default-avatar.png"}
             alt="avatar"
             className="w-32 h-32 rounded-full object-cover border"
           />
+          {edit && (
+            <label className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">
+              Change Avatar
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) setForm({ ...form, avatar: file });
+                }}
+                className="hidden"
+              />
+            </label>
+          )}
         </div>
 
         {/* Form */}
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Name
-            </label>
-            <input
-              type="text"
-              disabled={!edit}
-              value={form.name || ""}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className={`w-full border rounded px-3 py-2 ${
-                !edit ? "bg-gray-100" : "bg-white"
-              }`}
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              disabled
-              value={form.email || ""}
-              className="w-full border rounded px-3 py-2 bg-gray-100"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              District
-            </label>
-            <input
-              type="text"
-              disabled={!edit}
-              value={form.district || ""}
-              onChange={(e) => setForm({ ...form, district: e.target.value })}
-              className={`w-full border rounded px-3 py-2 ${
-                !edit ? "bg-gray-100" : "bg-white"
-              }`}
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Upazila
-            </label>
-            <input
-              type="text"
-              disabled={!edit}
-              value={form.upazila || ""}
-              onChange={(e) => setForm({ ...form, upazila: e.target.value })}
-              className={`w-full border rounded px-3 py-2 ${
-                !edit ? "bg-gray-100" : "bg-white"
-              }`}
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Blood Group
-            </label>
-            <input
-              type="text"
-              disabled={!edit}
-              value={form.bloodGroup || ""}
-              onChange={(e) =>
-                setForm({ ...form, bloodGroup: e.target.value })
-              }
-              className={`w-full border rounded px-3 py-2 ${
-                !edit ? "bg-gray-100" : "bg-white"
-              }`}
-            />
-          </div>
+          {[
+            { label: "Name", field: "name", type: "text" },
+            { label: "Email", field: "email", type: "email", disabled: true },
+            { label: "District", field: "district", type: "text" },
+            { label: "Upazila", field: "upazila", type: "text" },
+            { label: "Blood Group", field: "bloodGroup", type: "text" },
+          ].map(({ label, field, type, disabled }) => (
+            <div key={field}>
+              <label className="block text-gray-700 font-semibold mb-1">
+                {label}
+              </label>
+              <input
+                type={type}
+                disabled={disabled || !edit}
+                value={form[field] || ""}
+                onChange={(e) =>
+                  setForm({ ...form, [field]: e.target.value })
+                }
+                className={`w-full border rounded px-3 py-2 ${
+                  disabled || !edit ? "bg-gray-100" : "bg-white"
+                }`}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>

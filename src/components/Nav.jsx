@@ -16,14 +16,15 @@ export default function Nav() {
   };
 
   return (
-    <nav className="bg-red-600 text-white px-6 py-4 flex justify-between items-center">
+    <nav className="bg-red-600 text-white px-6 py-4 flex justify-between items-center
+                    sticky top-0 z-50 w-full">
       {/* Logo */}
       <Link to="/" className="text-xl font-bold">
-         Blood Donation
+        Blood Donation
       </Link>
 
-      {/* Desktop Menu */}
-      <div className="hidden md:flex gap-4 items-center">
+      {/* ================= DESKTOP MENU ================= */}
+      <div className="hidden md:flex gap-6 items-center">
         <Link to="/" className="hover:underline">
           Home
         </Link>
@@ -35,16 +36,16 @@ export default function Nav() {
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-1 bg-white text-red-600 px-4 py-1 rounded hover:bg-gray-100"
+              className="flex items-center gap-1 bg-white text-red-600 px-4 py-2 rounded hover:bg-gray-100"
             >
               {user.name || user.email} ▼
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white text-red-600 rounded shadow-lg z-10 flex flex-col">
+              <div className="absolute right-0 mt-2 w-52 bg-white text-gray-700 rounded shadow-lg z-50">
                 <Link
                   to="/dashboard/my-requests"
-                  className="px-4 py-2 hover:bg-gray-100"
+                  className="block px-4 py-2 hover:bg-gray-100"
                   onClick={() => setDropdownOpen(false)}
                 >
                   My Requests
@@ -52,7 +53,7 @@ export default function Nav() {
 
                 <Link
                   to="/dashboard/donate"
-                  className="px-4 py-2 hover:bg-gray-100"
+                  className="block px-4 py-2 hover:bg-gray-100"
                   onClick={() => setDropdownOpen(false)}
                 >
                   Create Request
@@ -62,15 +63,15 @@ export default function Nav() {
                   <>
                     <Link
                       to="/dashboard/admin"
-                      className="px-4 py-2 hover:bg-gray-100"
+                      className="block px-4 py-2 hover:bg-gray-100"
                       onClick={() => setDropdownOpen(false)}
                     >
-                      Dashboard
+                      Admin Dashboard
                     </Link>
 
                     <Link
                       to="/dashboard/funding"
-                      className="px-4 py-2 hover:bg-gray-100"
+                      className="block px-4 py-2 hover:bg-gray-100"
                       onClick={() => setDropdownOpen(false)}
                     >
                       Funding
@@ -80,7 +81,7 @@ export default function Nav() {
 
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 text-left hover:bg-gray-100"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
                 >
                   Logout
                 </button>
@@ -91,13 +92,13 @@ export default function Nav() {
           <>
             <Link
               to="/login"
-              className="bg-white text-red-600 px-4 py-1 rounded hover:bg-gray-100"
+              className="bg-white text-red-600 px-4 py-2 rounded hover:bg-gray-100"
             >
               Login
             </Link>
             <Link
               to="/register"
-              className="border border-white px-4 py-1 rounded hover:bg-white hover:text-red-600"
+              className="border border-white px-4 py-2 rounded hover:bg-white hover:text-red-600"
             >
               Register
             </Link>
@@ -105,58 +106,39 @@ export default function Nav() {
         )}
       </div>
 
-      {/* Mobile Hamburger */}
-      <div className="md:hidden flex items-center">
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="text-white focus:outline-none"
-        >
-          ☰
-        </button>
-      </div>
+      {/* ================= MOBILE MENU ================= */}
+      <button
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        className="md:hidden text-2xl"
+      >
+        ☰
+      </button>
 
-      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-red-600 text-white flex flex-col gap-2 p-4 md:hidden z-20">
-          <Link to="/" className="hover:underline" onClick={() => setMobileMenuOpen(false)}>
+        <div className="absolute top-full left-0 w-full bg-red-600 text-white
+                        flex flex-col gap-3 p-4 md:hidden z-40">
+          <Link to="/" onClick={() => setMobileMenuOpen(false)}>
             Home
           </Link>
-          <Link to="/search" className="hover:underline" onClick={() => setMobileMenuOpen(false)}>
+          <Link to="/search" onClick={() => setMobileMenuOpen(false)}>
             Search Donors
           </Link>
 
           {user ? (
             <>
-              <Link
-                to="/dashboard/my-requests"
-                className="hover:underline"
-                onClick={() => setMobileMenuOpen(false)}
-              >
+              <Link to="/dashboard/my-requests" onClick={() => setMobileMenuOpen(false)}>
                 My Requests
               </Link>
-
-              <Link
-                to="/dashboard/donate"
-                className="hover:underline"
-                onClick={() => setMobileMenuOpen(false)}
-              >
+              <Link to="/dashboard/donate" onClick={() => setMobileMenuOpen(false)}>
                 Create Request
               </Link>
 
               {(user.role === "admin" || user.role === "volunteer") && (
                 <>
-                  <Link
-                    to="/dashboard/admin"
-                    className="hover:underline"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Dashboard
+                  <Link to="/dashboard/admin" onClick={() => setMobileMenuOpen(false)}>
+                    Admin Dashboard
                   </Link>
-                  <Link
-                    to="/dashboard/funding"
-                    className="hover:underline"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
+                  <Link to="/dashboard/funding" onClick={() => setMobileMenuOpen(false)}>
                     Funding
                   </Link>
                 </>
@@ -164,7 +146,7 @@ export default function Nav() {
 
               <button
                 onClick={handleLogout}
-                className="text-left hover:bg-gray-100 text-red-600 px-4 py-2 rounded"
+                className="text-left bg-white text-red-600 px-4 py-2 rounded"
               >
                 Logout
               </button>
@@ -173,14 +155,14 @@ export default function Nav() {
             <>
               <Link
                 to="/login"
-                className="bg-white text-red-600 px-4 py-2 rounded hover:bg-gray-100"
+                className="bg-white text-red-600 px-4 py-2 rounded"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Login
               </Link>
               <Link
                 to="/register"
-                className="border border-white px-4 py-2 rounded hover:bg-white hover:text-red-600"
+                className="border border-white px-4 py-2 rounded"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Register

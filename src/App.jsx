@@ -13,6 +13,7 @@ import CreateDonationRequest from "./dashboard/CreateDonationRequest";
 import Profile from "./dashboard/Profile";
 import AllUsers from "./dashboard/AllUsers"; 
 import AllDonationRequests from "./dashboard/AllDonationRequests";
+import DashboardHome from "./dashboard/DashboardHome";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleRoute from "./components/RoleRoute";
@@ -38,6 +39,9 @@ export default function App() {
             </ProtectedRoute>
           }
         >
+          {/* Default dashboard home */}
+          <Route index element={<DashboardHome />} />
+
           {/* User Routes */}
           <Route path="my-requests" element={<MyRequests />} />
           <Route path="donate" element={<CreateDonationRequest />} />
