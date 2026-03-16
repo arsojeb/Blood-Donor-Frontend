@@ -4,14 +4,15 @@ import { useAuth } from "../context/AuthContext";
 
 export default function Funding() {
   const { user } = useAuth();
+
   const [funds, setFunds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
 
-  // ================== FETCH FUNDS ==================
+  // ================= FETCH FUNDS =================
   const fetchFunds = async () => {
-    if (!user || !user.role) return; // safeguard
+    if (!user || !user.role) return;
 
     setLoading(true);
     setError("");
@@ -19,52 +20,64 @@ export default function Funding() {
     try {
       const url = user.role === "admin" ? "/fundings" : "/fundings/my";
       const res = await API.get(url);
-      setFunds(res.data || []); // default to empty array
+
+      setFunds(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error(err.response || err.message);
+      console.error(err);
       setError(
-        err.response?.data?.message || "Failed to fetch funds. Please try again."
+        err?.response?.data?.message ||
+          "Failed to fetch funds. Please try again."
       );
+      setFunds([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // ================== RUN FETCH ON USER ROLE ==================
+  // ================ RUN WHEN USER READY ================
   useEffect(() => {
-    fetchFunds();
-  }, [user?.role]); // optional chaining ensures no crash if user undefined
+    if (user?.role) {
+      fetchFunds();
+    }
+  }, [user]);
 
-  // ================== GIVE FUND ==================
+  // ================= GIVE FUND =================
   const handleGiveFund = async () => {
-    if (!amount || parseFloat(amount) <= 0) {
+    const numericAmount = parseFloat(amount);
+
+    if (!numericAmount || numericAmount <= 0) {
       setError("Please enter a valid amount.");
       return;
     }
 
     setError("");
+
     try {
-      await API.post("/fundings", { amount: parseFloat(amount) });
+      await API.post("/fundings", { amount: numericAmount });
+
       setAmount("");
+      fetchFunds();
       alert("Fund successfully given!");
-      fetchFunds(); // refresh funds
     } catch (err) {
-      console.error(err.response || err.message);
+      console.error(err);
       setError(
-        err.response?.data?.message || "Failed to give fund. Please try again."
+        err?.response?.data?.message ||
+          "Failed to give fund. Please try again."
       );
     }
   };
 
-  // ================== TOTAL FUNDS ==================
-  const totalFunds = funds.reduce((acc, f) => acc + parseFloat(f.amount || 0), 0);
+  // ================= TOTAL FUNDS =================
+  const totalFunds = Array.isArray(funds)
+    ? funds.reduce((acc, f) => acc + Number(f.amount || 0), 0)
+    : 0;
 
-  // ================== RENDER ==================
+  // ================= RENDER =================
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <h2 className="text-3xl font-bold mb-4 text-red-600">💰 Funding</h2>
 
-      {/* Give Fund Section */}
+      {/* GIVE FUND */}
       <div className="flex flex-col sm:flex-row gap-2 mb-6">
         <input
           type="number"
@@ -73,15 +86,17 @@ export default function Funding() {
           onChange={(e) => setAmount(e.target.value)}
           className="border rounded px-3 py-2 flex-1 focus:border-red-600 focus:ring-1 focus:ring-red-600"
         />
+
         <button
           onClick={handleGiveFund}
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+          disabled={loading}
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition disabled:opacity-50"
         >
           Give Fund
         </button>
       </div>
 
-      {/* Error Message */}
+      {/* ERROR */}
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
       {/* ADMIN VIEW */}
@@ -103,16 +118,17 @@ export default function Funding() {
                     <th className="border px-4 py-2 text-left">Date</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {funds.length === 0 ? (
                     <tr>
                       <td colSpan="3" className="text-center py-4 text-gray-500">
-                        No donations found.
+                        No donations found
                       </td>
                     </tr>
                   ) : (
-                    funds.map((f, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
+                    funds.map((f) => (
+                      <tr key={f._id} className="hover:bg-gray-50">
                         <td className="border px-4 py-2">{f.email}</td>
                         <td className="border px-4 py-2">৳{f.amount}</td>
                         <td className="border px-4 py-2">
@@ -132,6 +148,7 @@ export default function Funding() {
       {user?.role !== "admin" && (
         <div className="bg-white shadow p-4 rounded mb-4">
           <h3 className="text-xl font-semibold mb-2">Your Contribution</h3>
+
           {loading ? (
             <p>Loading your donations...</p>
           ) : (

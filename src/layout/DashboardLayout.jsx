@@ -2,36 +2,51 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { useState } from "react";
 
-export default function DashboardLayout() {
+export default function DashboardLayout({ user }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const closeSidebar = () => setSidebarOpen(false);
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Mobile Overlay Sidebar */}
+      
+      {/* Sidebar */}
       <div
-        className={`fixed inset-0 z-40 md:static md:translate-x-0 transform ${
+        className={`fixed md:static inset-y-0 left-0 z-50 transform ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300`}
+        } md:translate-x-0 transition-transform duration-300`}
       >
-        <Sidebar onClose={() => setSidebarOpen(false)} />
+        <Sidebar user={user} onClose={closeSidebar} />
       </div>
 
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
+          onClick={closeSidebar}
+        />
+      )}
+
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Top bar for mobile */}
-        <div className="md:hidden bg-white shadow p-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-red-600">Dashboard</h1>
+      <div className="flex-1 flex flex-col w-full">
+        
+        {/* Mobile Topbar */}
+        <div className="md:hidden bg-white shadow-md px-4 py-3 flex items-center justify-between">
+          <h1 className="text-lg font-bold text-red-600">
+            Blood Donation
+          </h1>
+
           <button
             onClick={toggleSidebar}
-            className="text-gray-700 focus:outline-none"
+            className="text-2xl text-gray-700"
           >
-            {sidebarOpen ? "✖" : "☰"}
+            {sidebarOpen ? "✕" : "☰"}
           </button>
         </div>
 
-        <main className="flex-1 p-6 mt-0 md:mt-0">
+        {/* Page Content */}
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <Outlet />
         </main>
       </div>

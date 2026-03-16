@@ -52,7 +52,7 @@ export default function Register() {
       const apiKey = "YOUR_IMAGEBB_API_KEY";
       const response = await axios.post(
         `https://api.imgbb.com/1/upload?key=${apiKey}`,
-        formData
+        formData,
       );
       setForm({ ...form, avatar: response.data.data.url });
     } catch (err) {

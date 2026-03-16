@@ -9,18 +9,22 @@ export default function AllUsers() {
   const [openMenu, setOpenMenu] = useState(null);
   const [actionLoadingIds, setActionLoadingIds] = useState([]);
 
-  // Search & filter state
+  // Search & filters
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  // Fetch all users
+  // Fetch users
   const fetchUsers = async () => {
-    setLoading(true);
-    setError(null);
     try {
+      setLoading(true);
+      setError(null);
+
       const res = await API.get("/users");
-      setUsers(res.data || []);
+
+      // Safe data handling
+      const data = Array.isArray(res.data) ? res.data : res.data?.users || [];
+      setUsers(data);
     } catch (err) {
       console.error(err);
       setError("Failed to fetch users.");
@@ -33,13 +37,14 @@ export default function AllUsers() {
     fetchUsers();
   }, []);
 
-  // Handle user actions
+  // Handle actions
   const handleAction = async (id, action) => {
     setActionLoadingIds((prev) => [...prev, id]);
+
     try {
       await API.patch(`/users/${id}/${action}`);
 
-      // Optimistic UI update
+      // Optimistic update
       setUsers((prev) =>
         prev.map((user) => {
           if (user._id !== id) return user;
@@ -47,12 +52,16 @@ export default function AllUsers() {
           switch (action) {
             case "block":
               return { ...user, status: "blocked" };
+
             case "unblock":
               return { ...user, status: "active" };
+
             case "make-volunteer":
               return { ...user, role: "volunteer" };
+
             case "make-admin":
               return { ...user, role: "admin" };
+
             default:
               return user;
           }
@@ -63,26 +72,34 @@ export default function AllUsers() {
       alert("Action failed!");
     } finally {
       setActionLoadingIds((prev) => prev.filter((uid) => uid !== id));
-      setOpenMenu(null); // close menu after action
+      setOpenMenu(null);
     }
   };
 
-  // Filtered & searched users
+  // Filter users
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
+      const name = user?.name?.toLowerCase() || "";
+      const email = user?.email?.toLowerCase() || "";
+
       const matchesSearch =
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesRole = roleFilter ? user.role === roleFilter : true;
-      const matchesStatus = statusFilter ? user.status === statusFilter : true;
+        name.includes(searchTerm.toLowerCase()) ||
+        email.includes(searchTerm.toLowerCase());
+
+      const matchesRole = roleFilter ? user?.role === roleFilter : true;
+      const matchesStatus = statusFilter ? user?.status === statusFilter : true;
+
       return matchesSearch && matchesRole && matchesStatus;
     });
   }, [users, searchTerm, roleFilter, statusFilter]);
 
-  if (loading)
+  if (loading) {
     return <p className="text-center mt-6">Loading users...</p>;
-  if (error)
+  }
+
+  if (error) {
     return <p className="text-center mt-6 text-red-600">{error}</p>;
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -120,6 +137,7 @@ export default function AllUsers() {
         </select>
       </div>
 
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[700px] bg-white border rounded shadow">
           <thead className="bg-gray-100">
@@ -132,6 +150,7 @@ export default function AllUsers() {
               <th className="p-3 border text-left">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {filteredUsers.length === 0 ? (
               <tr>
@@ -141,9 +160,9 @@ export default function AllUsers() {
               </tr>
             ) : (
               filteredUsers.map((u) => (
-                <tr key={u._id} className="hover:bg-gray-50 relative">
+                <tr key={u._id || u.email} className="hover:bg-gray-50 relative">
                   <td className="p-3 border">
-                    {u.avatar ? (
+                    {u?.avatar ? (
                       <img
                         src={u.avatar}
                         alt="avatar"
@@ -153,10 +172,12 @@ export default function AllUsers() {
                       "N/A"
                     )}
                   </td>
-                  <td className="p-3 border">{u.email}</td>
-                  <td className="p-3 border">{u.name}</td>
-                  <td className="p-3 border capitalize">{u.role}</td>
-                  <td className="p-3 border capitalize">{u.status}</td>
+
+                  <td className="p-3 border">{u?.email || "N/A"}</td>
+                  <td className="p-3 border">{u?.name || "N/A"}</td>
+                  <td className="p-3 border capitalize">{u?.role || "N/A"}</td>
+                  <td className="p-3 border capitalize">{u?.status || "N/A"}</td>
+
                   <td className="p-3 border relative">
                     <button
                       className="p-2 border rounded hover:bg-gray-100"
@@ -169,14 +190,11 @@ export default function AllUsers() {
 
                     {openMenu === u._id && (
                       <div className="absolute right-0 top-10 w-48 bg-white border rounded shadow-md z-10">
-                        {u.status === "active" && (
+
+                        {u?.status === "active" && (
                           <button
                             disabled={actionLoadingIds.includes(u._id)}
-                            className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-                              actionLoadingIds.includes(u._id)
-                                ? "text-gray-400 cursor-not-allowed"
-                                : ""
-                            }`}
+                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                             onClick={() => handleAction(u._id, "block")}
                           >
                             {actionLoadingIds.includes(u._id)
@@ -184,14 +202,11 @@ export default function AllUsers() {
                               : "Block"}
                           </button>
                         )}
-                        {u.status === "blocked" && (
+
+                        {u?.status === "blocked" && (
                           <button
                             disabled={actionLoadingIds.includes(u._id)}
-                            className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-                              actionLoadingIds.includes(u._id)
-                                ? "text-gray-400 cursor-not-allowed"
-                                : ""
-                            }`}
+                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                             onClick={() => handleAction(u._id, "unblock")}
                           >
                             {actionLoadingIds.includes(u._id)
@@ -199,14 +214,11 @@ export default function AllUsers() {
                               : "Unblock"}
                           </button>
                         )}
-                        {u.role !== "volunteer" && (
+
+                        {u?.role !== "volunteer" && (
                           <button
                             disabled={actionLoadingIds.includes(u._id)}
-                            className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-                              actionLoadingIds.includes(u._id)
-                                ? "text-gray-400 cursor-not-allowed"
-                                : ""
-                            }`}
+                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                             onClick={() =>
                               handleAction(u._id, "make-volunteer")
                             }
@@ -216,14 +228,11 @@ export default function AllUsers() {
                               : "Make Volunteer"}
                           </button>
                         )}
-                        {u.role !== "admin" && (
+
+                        {u?.role !== "admin" && (
                           <button
                             disabled={actionLoadingIds.includes(u._id)}
-                            className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-                              actionLoadingIds.includes(u._id)
-                                ? "text-gray-400 cursor-not-allowed"
-                                : ""
-                            }`}
+                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                             onClick={() => handleAction(u._id, "make-admin")}
                           >
                             {actionLoadingIds.includes(u._id)
@@ -231,6 +240,7 @@ export default function AllUsers() {
                               : "Make Admin"}
                           </button>
                         )}
+
                       </div>
                     )}
                   </td>

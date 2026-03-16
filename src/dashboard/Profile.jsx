@@ -2,45 +2,59 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
 
+/* Example District + Upazila Data */
+const districts = {
+  Dhaka: ["Savar", "Dhamrai", "Keraniganj", "Nawabganj"],
+  Chattogram: ["Patiya", "Rangunia", "Sitakunda", "Fatikchhari"],
+  Khulna: ["Batiaghata", "Dacope", "Dumuria"],
+  Rajshahi: ["Bagha", "Charghat", "Puthia"],
+};
+
 export default function Profile() {
   const { user, setUser } = useAuth();
   const [edit, setEdit] = useState(false);
+
   const [form, setForm] = useState({
-    name: user.name || "",
-    email: user.email || "",
-    district: user.district || "",
-    upazila: user.upazila || "",
-    bloodGroup: user.bloodGroup || "",
-    avatar: user.avatar || "",
+    name: user?.name || "",
+    email: user?.email || "",
+    district: user?.district || "",
+    upazila: user?.upazila || "",
+    bloodGroup: user?.bloodGroup || "",
+    avatar: user?.avatar || "",
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const hasChanges = JSON.stringify(form) !== JSON.stringify({
-    name: user.name || "",
-    email: user.email || "",
-    district: user.district || "",
-    upazila: user.upazila || "",
-    bloodGroup: user.bloodGroup || "",
-    avatar: user.avatar || "",
-  });
+  const hasChanges =
+    JSON.stringify(form) !==
+    JSON.stringify({
+      name: user?.name || "",
+      email: user?.email || "",
+      district: user?.district || "",
+      upazila: user?.upazila || "",
+      bloodGroup: user?.bloodGroup || "",
+      avatar: user?.avatar || "",
+    });
+
+  const handleDistrictChange = (e) => {
+    const district = e.target.value;
+    setForm({
+      ...form,
+      district,
+      upazila: "", // reset upazila when district changes
+    });
+  };
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    // preview locally
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setForm({ ...form, avatar: reader.result });
-    };
-    reader.readAsDataURL(file);
-
-    // for real backend upload, send FormData in save()
+    setForm({ ...form, avatar: file });
   };
 
   const save = async () => {
     if (!hasChanges) return;
+
     setLoading(true);
     setError("");
 
@@ -51,8 +65,7 @@ export default function Profile() {
       formData.append("upazila", form.upazila);
       formData.append("bloodGroup", form.bloodGroup);
 
-      // if avatar is changed and is a file, append it
-      if (form.avatar && form.avatar instanceof File) {
+      if (form.avatar instanceof File) {
         formData.append("avatar", form.avatar);
       }
 
@@ -64,31 +77,32 @@ export default function Profile() {
       setEdit(false);
     } catch (err) {
       console.error(err);
-      setError("Failed to update profile. Please try again.");
+      setError("Failed to update profile.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded shadow-md">
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded shadow">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">My Profile</h2>
+
         {!edit ? (
           <button
             onClick={() => setEdit(true)}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
           >
             Edit
           </button>
         ) : (
           <button
             onClick={save}
-            disabled={loading || !hasChanges}
-            className={`px-4 py-2 rounded text-white transition ${
+            disabled={!hasChanges || loading}
+            className={`px-4 py-2 rounded text-white ${
               loading || !hasChanges
-                ? "bg-gray-400 cursor-not-allowed"
+                ? "bg-gray-400"
                 : "bg-green-600 hover:bg-green-700"
             }`}
           >
@@ -101,54 +115,114 @@ export default function Profile() {
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* Avatar */}
-        <div className="flex-shrink-0 flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-2">
           <img
-            src={form.avatar || "/default-avatar.png"}
+            src={
+              form.avatar instanceof File
+                ? URL.createObjectURL(form.avatar)
+                : form.avatar || "/default-avatar.png"
+            }
             alt="avatar"
             className="w-32 h-32 rounded-full object-cover border"
           />
+
           {edit && (
-            <label className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">
-              Change Avatar
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (file) setForm({ ...form, avatar: file });
-                }}
-                className="hidden"
-              />
-            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+            />
           )}
         </div>
 
         {/* Form */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            { label: "Name", field: "name", type: "text" },
-            { label: "Email", field: "email", type: "email", disabled: true },
-            { label: "District", field: "district", type: "text" },
-            { label: "Upazila", field: "upazila", type: "text" },
-            { label: "Blood Group", field: "bloodGroup", type: "text" },
-          ].map(({ label, field, type, disabled }) => (
-            <div key={field}>
-              <label className="block text-gray-700 font-semibold mb-1">
-                {label}
-              </label>
-              <input
-                type={type}
-                disabled={disabled || !edit}
-                value={form[field] || ""}
-                onChange={(e) =>
-                  setForm({ ...form, [field]: e.target.value })
-                }
-                className={`w-full border rounded px-3 py-2 ${
-                  disabled || !edit ? "bg-gray-100" : "bg-white"
-                }`}
-              />
-            </div>
-          ))}
+        <div className="flex-1 grid md:grid-cols-2 gap-4">
+          {/* Name */}
+          <div>
+            <label className="font-semibold">Name</label>
+            <input
+              type="text"
+              disabled={!edit}
+              value={form.name}
+              onChange={(e) =>
+                setForm({ ...form, name: e.target.value })
+              }
+              className="w-full border rounded px-3 py-2"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="font-semibold">Email</label>
+            <input
+              type="email"
+              disabled
+              value={form.email}
+              className="w-full border rounded px-3 py-2 bg-gray-100"
+            />
+          </div>
+
+          {/* District */}
+          <div>
+            <label className="font-semibold">District</label>
+            <select
+              disabled={!edit}
+              value={form.district}
+              onChange={handleDistrictChange}
+              className="w-full border rounded px-3 py-2"
+            >
+              <option value="">Select District</option>
+              {Object.keys(districts).map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Upazila */}
+          <div>
+            <label className="font-semibold">Upazila</label>
+            <select
+              disabled={!edit || !form.district}
+              value={form.upazila}
+              onChange={(e) =>
+                setForm({ ...form, upazila: e.target.value })
+              }
+              className="w-full border rounded px-3 py-2"
+            >
+              <option value="">Select Upazila</option>
+              {form.district &&
+                districts[form.district].map((u) => (
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          {/* Blood Group */}
+          <div>
+            <label className="font-semibold">Blood Group</label>
+            <select
+              disabled={!edit}
+              value={form.bloodGroup}
+              onChange={(e) =>
+                setForm({ ...form, bloodGroup: e.target.value })
+              }
+              className="w-full border rounded px-3 py-2"
+            >
+              <option value="">Select Blood Group</option>
+              <option>A+</option>
+              <option>A-</option>
+              <option>B+</option>
+              <option>B-</option>
+              <option>AB+</option>
+              <option>AB-</option>
+              <option>O+</option>
+              <option>O-</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>

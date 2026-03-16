@@ -8,6 +8,7 @@ import {
   FaDonate,
   FaSignOutAlt,
   FaBars,
+  FaPlusCircle,
 } from "react-icons/fa";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebas.config";
@@ -22,7 +23,6 @@ const Sidebar = ({ user }) => {
   const toggleSidebar = () => setIsOpen(!isOpen);
   const toggleMobile = () => setIsMobileOpen(!isMobileOpen);
 
-  //Logout
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -33,12 +33,13 @@ const Sidebar = ({ user }) => {
     }
   };
 
-  // Menu items
+  // Base menu
   const menuItems = [
     { name: "Dashboard", icon: <FaHome />, path: "/dashboard" },
     { name: "Profile", icon: <FaUser />, path: "/dashboard/profile" },
   ];
 
+  // Admin menu
   if (user?.role === "admin") {
     menuItems.push(
       { name: "All Users", icon: <FaUsers />, path: "/dashboard/all-users" },
@@ -47,10 +48,11 @@ const Sidebar = ({ user }) => {
         icon: <FaClipboardList />,
         path: "/dashboard/all-blood-donation-request",
       },
-      { name: "Funding", icon: <FaDonate />, path: "/dashboard/funding" }
+      { name: "Funding", icon: <FaDonate />, path: "/dashboard/funding" },
     );
   }
 
+  // Volunteer menu
   if (user?.role === "volunteer") {
     menuItems.push({
       name: "All Donation Requests",
@@ -59,21 +61,46 @@ const Sidebar = ({ user }) => {
     });
   }
 
+  // Donor menu
   if (user?.role === "donor") {
     menuItems.push(
       {
-        name: "My Donation Requests",
+        name: "Create Request",
+        icon: <FaPlusCircle />,
+        path: "/dashboard/create-donation-request",
+      },
+      {
+        name: "My Requests",
         icon: <FaClipboardList />,
         path: "/dashboard/my-donation-requests",
       },
       {
-        name: "Create Donation Request",
-        icon: <FaClipboardList />,
-        path: "/dashboard/create-donation-request",
+        name: "Funding",
+        icon: <FaDonate />,
+        path: "/dashboard/funding",
       },
-      { name: "Funding", icon: <FaDonate />, path: "/dashboard/funding" }
     );
   }
+
+  const renderMenuItem = (item) => {
+    const isActive = location.pathname.startsWith(item.path);
+
+    return (
+      <Link
+        key={item.name}
+        to={item.path}
+        onClick={() => setIsMobileOpen(false)}
+        className={`flex items-center gap-3 p-2 rounded transition ${
+          isActive
+            ? "bg-red-200 text-red-700 font-semibold"
+            : "text-gray-700 hover:bg-red-100"
+        }`}
+      >
+        <span className="text-lg">{item.icon}</span>
+        {isOpen && <span>{item.name}</span>}
+      </Link>
+    );
+  };
 
   const sidebarContent = (
     <div
@@ -91,6 +118,7 @@ const Sidebar = ({ user }) => {
             Blood Donation
           </Link>
         )}
+
         <button
           onClick={toggleSidebar}
           className="hidden md:block text-gray-600 hover:text-red-600"
@@ -100,21 +128,8 @@ const Sidebar = ({ user }) => {
       </div>
 
       {/* Menu */}
-      <nav className="flex-1 p-4 overflow-y-auto">
-        {menuItems.map((item) => (
-          <Link
-            key={item.name}
-            to={item.path}
-            className={`flex items-center p-2 mb-2 rounded transition ${
-              location.pathname.startsWith(item.path)
-                ? "bg-red-200 font-semibold"
-                : "text-gray-700 hover:bg-red-100"
-            }`}
-          >
-            <span className="text-lg">{item.icon}</span>
-            {isOpen && <span className="ml-3">{item.name}</span>}
-          </Link>
-        ))}
+      <nav className="flex-1 p-4 overflow-y-auto flex flex-col gap-1">
+        {menuItems.map((item) => renderMenuItem(item))}
       </nav>
 
       {/* Logout */}
@@ -137,6 +152,7 @@ const Sidebar = ({ user }) => {
         <Link to="/" className="font-bold text-red-600">
           Blood Donation
         </Link>
+
         <button onClick={toggleMobile}>
           <FaBars className="text-xl text-gray-700" />
         </button>
@@ -155,7 +171,7 @@ const Sidebar = ({ user }) => {
 
       {/* Mobile Sidebar */}
       {isMobileOpen && (
-        <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg p-4">
+        <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg p-4 flex flex-col">
           <div className="flex justify-between items-center mb-4">
             <Link
               to="/"
@@ -164,6 +180,7 @@ const Sidebar = ({ user }) => {
             >
               Blood Donation
             </Link>
+
             <button onClick={toggleMobile} className="text-xl">
               ×
             </button>
@@ -177,8 +194,8 @@ const Sidebar = ({ user }) => {
                 onClick={toggleMobile}
                 className={`flex items-center p-2 rounded transition ${
                   location.pathname.startsWith(item.path)
-                    ? "bg-red-200 font-semibold"
-                    : "hover:bg-red-100"
+                    ? "bg-red-200 font-semibold text-red-700"
+                    : "hover:bg-red-100 text-gray-700"
                 }`}
               >
                 <span className="text-lg">{item.icon}</span>
