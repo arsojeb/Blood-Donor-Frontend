@@ -144,7 +144,7 @@ export default function Home() {
             <p className="italic text-gray-600">
               "I donated blood and helped save a life. Best feeling ever!"
             </p>
-            <h4 className="mt-4 text-red-500 font-bold">— Donor</h4>
+            <h4 className="mt-4 text-red-500 font-bold">— Fatima S. <br /> — Donor</h4>
           </div>
 
           <div className="flex-1 max-w-md bg-white p-8 rounded-2xl shadow hover:shadow-2xl transition hover:-translate-y-1 duration-300">
