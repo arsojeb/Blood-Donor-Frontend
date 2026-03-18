@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
 
@@ -13,29 +13,43 @@ const districts = {
 export default function Profile() {
   const { user, setUser } = useAuth();
   const [edit, setEdit] = useState(false);
-
-  const [form, setForm] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    district: user?.district || "",
-    upazila: user?.upazila || "",
-    bloodGroup: user?.bloodGroup || "",
-    avatar: user?.avatar || "",
-  });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const hasChanges =
-    JSON.stringify(form) !==
-    JSON.stringify({
-      name: user?.name || "",
-      email: user?.email || "",
-      district: user?.district || "",
-      upazila: user?.upazila || "",
-      bloodGroup: user?.bloodGroup || "",
-      avatar: user?.avatar || "",
-    });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    district: "",
+    upazila: "",
+    bloodGroup: "",
+    avatar: "",
+  });
+
+  // Sync user data to form when user loads
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user.name || "",
+        email: user.email || "",
+        district: user.district || "",
+        upazila: user.upazila || "",
+        bloodGroup: user.bloodGroup || "",
+        avatar: user.avatar || "",
+      });
+    }
+  }, [user]);
+
+  const hasChanges = user
+    ? JSON.stringify(form) !==
+      JSON.stringify({
+        name: user.name || "",
+        email: user.email || "",
+        district: user.district || "",
+        upazila: user.upazila || "",
+        bloodGroup: user.bloodGroup || "",
+        avatar: user.avatar || "",
+      })
+    : false;
 
   const handleDistrictChange = (e) => {
     const district = e.target.value;
@@ -50,6 +64,25 @@ export default function Profile() {
     const file = e.target.files[0];
     if (!file) return;
     setForm({ ...form, avatar: file });
+  };
+
+  const resetForm = () => {
+    if (user) {
+      setForm({
+        name: user.name || "",
+        email: user.email || "",
+        district: user.district || "",
+        upazila: user.upazila || "",
+        bloodGroup: user.bloodGroup || "",
+        avatar: user.avatar || "",
+      });
+    }
+    setError("");
+  };
+
+  const handleCancel = () => {
+    resetForm();
+    setEdit(false);
   };
 
   const save = async () => {
@@ -74,6 +107,7 @@ export default function Profile() {
       });
 
       setUser(res.data);
+      setForm(res.data); // Sync local form state with updated user data
       setEdit(false);
     } catch (err) {
       console.error(err);
@@ -83,145 +117,179 @@ export default function Profile() {
     }
   };
 
-  return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded shadow">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">My Profile</h2>
-
-        {!edit ? (
-          <button
-            onClick={() => setEdit(true)}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-          >
-            Edit
-          </button>
-        ) : (
-          <button
-            onClick={save}
-            disabled={!hasChanges || loading}
-            className={`px-4 py-2 rounded text-white ${
-              loading || !hasChanges
-                ? "bg-gray-400"
-                : "bg-green-600 hover:bg-green-700"
-            }`}
-          >
-            {loading ? "Saving..." : "Save"}
-          </button>
-        )}
+  // Safety check if user context is not ready
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <p className="text-gray-600 dark:text-gray-300">Loading user data...</p>
       </div>
+    );
+  }
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-10 px-4 transition-colors duration-300">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 md:p-8">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">My Profile</h2>
 
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Avatar */}
-        <div className="flex flex-col items-center gap-2">
-          <img
-            src={
-              form.avatar instanceof File
-                ? URL.createObjectURL(form.avatar)
-                : form.avatar || "/default-avatar.png"
-            }
-            alt="avatar"
-            className="w-32 h-32 rounded-full object-cover border"
-          />
-
-          {edit && (
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarChange}
-            />
-          )}
+          <div className="flex gap-2">
+            {!edit ? (
+              <button
+                onClick={() => setEdit(true)}
+                className="bg-red-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-700 transition shadow-sm"
+              >
+                Edit Profile
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleCancel}
+                  className="px-5 py-2 rounded-lg font-semibold border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={save}
+                  disabled={!hasChanges || loading}
+                  className={`px-5 py-2 rounded-lg font-semibold text-white transition shadow-sm ${
+                    loading || !hasChanges
+                      ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                      : "bg-green-600 hover:bg-green-700"
+                  }`}
+                >
+                  {loading ? "Saving..." : "Save Changes"}
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Form */}
-        <div className="flex-1 grid md:grid-cols-2 gap-4">
-          {/* Name */}
-          <div>
-            <label className="font-semibold">Name</label>
-            <input
-              type="text"
-              disabled={!edit}
-              value={form.name}
-              onChange={(e) =>
-                setForm({ ...form, name: e.target.value })
-              }
-              className="w-full border rounded px-3 py-2"
-            />
+        {error && <p className="text-red-600 dark:text-red-400 mb-4 text-center text-sm">{error}</p>}
+
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Avatar Section */}
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <img
+                src={
+                  form.avatar instanceof File
+                    ? URL.createObjectURL(form.avatar)
+                    : form.avatar || "https://via.placeholder.com/150"
+                }
+                alt="avatar"
+                className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700 shadow-md"
+              />
+            </div>
+
+            {edit && (
+              <label className="cursor-pointer bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                Change Photo
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
 
-          {/* Email */}
-          <div>
-            <label className="font-semibold">Email</label>
-            <input
-              type="email"
-              disabled
-              value={form.email}
-              className="w-full border rounded px-3 py-2 bg-gray-100"
-            />
-          </div>
+          {/* Form Section */}
+          <div className="flex-1 grid md:grid-cols-2 gap-5">
+            {/* Name */}
+            <div>
+              <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Name</label>
+              <input
+                type="text"
+                disabled={!edit}
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className={`w-full border rounded-lg px-4 py-2 transition ${
+                  edit
+                    ? "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none"
+                    : "bg-gray-50 dark:bg-gray-900/50 border-transparent text-gray-800 dark:text-gray-200"
+                }`}
+              />
+            </div>
 
-          {/* District */}
-          <div>
-            <label className="font-semibold">District</label>
-            <select
-              disabled={!edit}
-              value={form.district}
-              onChange={handleDistrictChange}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="">Select District</option>
-              {Object.keys(districts).map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* Email */}
+            <div>
+              <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Email</label>
+              <input
+                type="email"
+                disabled
+                value={form.email}
+                className="w-full border rounded-lg px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border-transparent text-gray-500 dark:text-gray-400 cursor-not-allowed"
+              />
+            </div>
 
-          {/* Upazila */}
-          <div>
-            <label className="font-semibold">Upazila</label>
-            <select
-              disabled={!edit || !form.district}
-              value={form.upazila}
-              onChange={(e) =>
-                setForm({ ...form, upazila: e.target.value })
-              }
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="">Select Upazila</option>
-              {form.district &&
-                districts[form.district].map((u) => (
-                  <option key={u} value={u}>
-                    {u}
+            {/* District */}
+            <div>
+              <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
+              <select
+                disabled={!edit}
+                value={form.district}
+                onChange={handleDistrictChange}
+                className={`w-full border rounded-lg px-4 py-2 transition ${
+                  edit
+                    ? "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none"
+                    : "bg-gray-50 dark:bg-gray-900/50 border-transparent text-gray-800 dark:text-gray-200"
+                }`}
+              >
+                <option value="">Select District</option>
+                {Object.keys(districts).map((d) => (
+                  <option key={d} value={d}>
+                    {d}
                   </option>
                 ))}
-            </select>
-          </div>
+              </select>
+            </div>
 
-          {/* Blood Group */}
-          <div>
-            <label className="font-semibold">Blood Group</label>
-            <select
-              disabled={!edit}
-              value={form.bloodGroup}
-              onChange={(e) =>
-                setForm({ ...form, bloodGroup: e.target.value })
-              }
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="">Select Blood Group</option>
-              <option>A+</option>
-              <option>A-</option>
-              <option>B+</option>
-              <option>B-</option>
-              <option>AB+</option>
-              <option>AB-</option>
-              <option>O+</option>
-              <option>O-</option>
-            </select>
+            {/* Upazila */}
+            <div>
+              <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Upazila</label>
+              <select
+                disabled={!edit || !form.district}
+                value={form.upazila}
+                onChange={(e) => setForm({ ...form, upazila: e.target.value })}
+                className={`w-full border rounded-lg px-4 py-2 transition ${
+                  edit
+                    ? "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none disabled:opacity-50"
+                    : "bg-gray-50 dark:bg-gray-900/50 border-transparent text-gray-800 dark:text-gray-200"
+                }`}
+              >
+                <option value="">Select Upazila</option>
+                {/* FIX: Added optional chaining ?. and fallback || [] to prevent crash */}
+                {form.district &&
+                  (districts[form.district] || []).map((u) => (
+                    <option key={u} value={u}>
+                      {u}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            {/* Blood Group */}
+            <div>
+              <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Blood Group</label>
+              <select
+                disabled={!edit}
+                value={form.bloodGroup}
+                onChange={(e) => setForm({ ...form, bloodGroup: e.target.value })}
+                className={`w-full border rounded-lg px-4 py-2 transition ${
+                  edit
+                    ? "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none"
+                    : "bg-gray-50 dark:bg-gray-900/50 border-transparent text-gray-800 dark:text-gray-200"
+                }`}
+              >
+                <option value="">Select Blood Group</option>
+                {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (
+                  <option key={bg} value={bg}>{bg}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>

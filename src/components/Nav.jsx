@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 
@@ -13,44 +13,57 @@ export default function Nav() {
     setMobileMenuOpen(false);
   };
 
+  // Helper function for styling active links
+  const linkStyle = ({ isActive }) =>
+    `transition ${
+      isActive
+        ? "font-bold underline underline-offset-4 decoration-white"
+        : "hover:underline"
+    }`;
+
   return (
-    <nav className="bg-red-600 text-white px-6 py-4 flex justify-between items-center sticky top-0 z-50 w-full">
+    <nav className="bg-red-600 text-white px-6 py-4 flex justify-between items-center sticky top-0 z-50 w-full shadow-md">
       
       {/* Logo */}
-      <Link to="/" className="text-xl font-bold">
+      <NavLink to="/" className="text-xl font-bold tracking-tight hover:opacity-90 transition">
         Blood Donation
-      </Link>
+      </NavLink>
 
       {/* ================= DESKTOP MENU ================= */}
       <div className="hidden md:flex gap-6 items-center">
 
-        <Link to="/" className="hover:underline">
+        <NavLink to="/" className={linkStyle}>
           Home
-        </Link>
+        </NavLink>
 
-        <Link to="/search" className="hover:underline">
+        <NavLink to="/search" className={linkStyle}>
           Search Donors
-        </Link>
+        </NavLink>
 
+        {/* Dashboard Section for Desktop */}
         {user && (
           <>
-            <Link to="/dashboard/my-requests" className="hover:underline">
-              My Requests
-            </Link>
+            <NavLink to="/dashboard" className={linkStyle}>
+              Dashboard
+            </NavLink>
 
-            <Link to="/dashboard/donate" className="hover:underline">
+            <NavLink to="/dashboard/my-requests" className={linkStyle}>
+              My Requests
+            </NavLink>
+
+            <NavLink to="/dashboard/donate" className={linkStyle}>
               Create Request
-            </Link>
+            </NavLink>
 
             {(user.role === "admin" || user.role === "volunteer") && (
               <>
-                <Link to="/dashboard/admin" className="hover:underline">
+                <NavLink to="/dashboard/admin" className={linkStyle}>
                   Admin Dashboard
-                </Link>
+                </NavLink>
 
-                <Link to="/dashboard/funding" className="hover:underline">
+                <NavLink to="/dashboard/funding" className={linkStyle}>
                   Funding
-                </Link>
+                </NavLink>
               </>
             )}
           </>
@@ -58,109 +71,114 @@ export default function Nav() {
 
         {/* Auth Section */}
         {user ? (
-          <>
-            <span className="bg-white text-red-600 px-3 py-1 rounded">
+          <div className="flex items-center gap-3">
+            <span className="bg-white/20 text-sm px-3 py-1 rounded-full border border-white/30">
               {user.name || user.email}
             </span>
-
             <button
               onClick={handleLogout}
-              className="bg-white text-red-600 px-4 py-2 rounded hover:bg-gray-100"
+              className="bg-white text-red-600 px-4 py-2 rounded font-semibold hover:bg-gray-100 transition shadow-sm"
             >
               Logout
             </button>
-          </>
+          </div>
         ) : (
-          <>
-            <Link
+          <div className="flex items-center gap-3">
+            <NavLink
               to="/login"
-              className="bg-white text-red-600 px-4 py-2 rounded hover:bg-gray-100"
+              className="bg-white text-red-600 px-4 py-2 rounded font-semibold hover:bg-gray-100 transition shadow-sm"
             >
               Login
-            </Link>
-
-            <Link
+            </NavLink>
+            <NavLink
               to="/register"
-              className="border border-white px-4 py-2 rounded hover:bg-white hover:text-red-600"
+              className="border-2 border-white px-4 py-2 rounded font-semibold hover:bg-white hover:text-red-600 transition"
             >
               Register
-            </Link>
-          </>
+            </NavLink>
+          </div>
         )}
       </div>
 
       {/* ================= MOBILE MENU BUTTON ================= */}
       <button
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="md:hidden text-2xl"
+        className="md:hidden text-3xl focus:outline-none transition-transform duration-300"
       >
-        ☰
+        {mobileMenuOpen ? "✕" : "☰"}
       </button>
 
       {/* ================= MOBILE MENU ================= */}
-      {mobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-red-600 text-white flex flex-col gap-3 p-4 md:hidden z-40">
+      <div 
+        className={`absolute top-full left-0 w-full bg-red-600 text-white flex flex-col gap-4 p-6 md:hidden z-40 shadow-lg transition-all duration-300 ease-in-out ${
+          mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+        }`}
+      >
+        
+        <NavLink to="/" onClick={() => setMobileMenuOpen(false)} className={linkStyle}>
+          Home
+        </NavLink>
 
-          <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-            Home
-          </Link>
+        <NavLink to="/search" onClick={() => setMobileMenuOpen(false)} className={linkStyle}>
+          Search Donors
+        </NavLink>
 
-          <Link to="/search" onClick={() => setMobileMenuOpen(false)}>
-            Search Donors
-          </Link>
+        {/* Dashboard Section for Mobile */}
+        {user && (
+          <>
+            <NavLink to="/dashboard" onClick={() => setMobileMenuOpen(false)} className={linkStyle}>
+              Dashboard
+            </NavLink>
 
-          {user && (
-            <>
-              <Link to="/dashboard/my-requests" onClick={() => setMobileMenuOpen(false)}>
-                My Requests
-              </Link>
+            <NavLink to="/dashboard/my-requests" onClick={() => setMobileMenuOpen(false)} className={linkStyle}>
+              My Requests
+            </NavLink>
 
-              <Link to="/dashboard/donate" onClick={() => setMobileMenuOpen(false)}>
-                Create Request
-              </Link>
+            <NavLink to="/dashboard/donate" onClick={() => setMobileMenuOpen(false)} className={linkStyle}>
+              Create Request
+            </NavLink>
 
-              {(user.role === "admin" || user.role === "volunteer") && (
-                <>
-                  <Link to="/dashboard/admin" onClick={() => setMobileMenuOpen(false)}>
-                    Admin Dashboard
-                  </Link>
+            {(user.role === "admin" || user.role === "volunteer") && (
+              <>
+                <NavLink to="/dashboard/admin" onClick={() => setMobileMenuOpen(false)} className={linkStyle}>
+                  Admin Dashboard
+                </NavLink>
 
-                  <Link to="/dashboard/funding" onClick={() => setMobileMenuOpen(false)}>
-                    Funding
-                  </Link>
-                </>
-              )}
+                <NavLink to="/dashboard/funding" onClick={() => setMobileMenuOpen(false)} className={linkStyle}>
+                  Funding
+                </NavLink>
+              </>
+            )}
 
-              <button
-                onClick={handleLogout}
-                className="text-left bg-white text-red-600 px-4 py-2 rounded"
-              >
-                Logout
-              </button>
-            </>
-          )}
+            <button
+              onClick={handleLogout}
+              className="text-left bg-white text-red-600 px-4 py-2 rounded mt-2 font-semibold"
+            >
+              Logout
+            </button>
+          </>
+        )}
 
-          {!user && (
-            <>
-              <Link
-                to="/login"
-                className="bg-white text-red-600 px-4 py-2 rounded"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Login
-              </Link>
+        {!user && (
+          <div className="flex flex-col gap-3 mt-2">
+            <NavLink
+              to="/login"
+              className="bg-white text-red-600 px-4 py-2 rounded text-center font-semibold"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Login
+            </NavLink>
 
-              <Link
-                to="/register"
-                className="border border-white px-4 py-2 rounded"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Register
-              </Link>
-            </>
-          )}
-        </div>
-      )}
+            <NavLink
+              to="/register"
+              className="border-2 border-white px-4 py-2 rounded text-center font-semibold"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Register
+            </NavLink>
+          </div>
+        )}
+      </div>
     </nav>
   );
 }

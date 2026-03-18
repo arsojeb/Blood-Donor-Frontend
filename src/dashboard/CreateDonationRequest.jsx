@@ -79,102 +79,106 @@ export default function CreateDonationRequest() {
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white p-8 rounded-2xl shadow-lg">
-      <h2 className="text-2xl font-bold text-center mb-6">
-        Create Blood Donation Request
-      </h2>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 transition-colors duration-300">
+      <div className="w-full max-w-lg bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+        
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">
+          Create Blood Donation Request
+        </h2>
 
-      {error && (
-        <div className="text-red-600 bg-red-50 px-4 py-2 rounded mb-4">
-          {error}
-        </div>
-      )}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded mb-4 text-center">
+            {error}
+          </div>
+        )}
 
-      {success && (
-        <div className="text-green-600 bg-green-50 px-4 py-2 rounded mb-4">
-          {success}
-        </div>
-      )}
+        {success && (
+          <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-4 py-3 rounded mb-4 text-center">
+            {success}
+          </div>
+        )}
 
-      <form onSubmit={submit} className="grid gap-4">
+        <form onSubmit={submit} className="grid gap-4">
 
-        {/* Recipient Name */}
-        <input
-          name="recipientName"
-          placeholder="Recipient Name"
-          className="border px-4 py-2 rounded"
-          required
-        />
+          {/* Recipient Name */}
+          <input
+            name="recipientName"
+            placeholder="Recipient Name"
+            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-red-500 transition"
+            required
+          />
 
-        {/* Hospital Name */}
-        <input
-          name="hospital"
-          placeholder="Hospital Name"
-          className="border px-4 py-2 rounded"
-          required
-        />
+          {/* Hospital Name */}
+          <input
+            name="hospital"
+            placeholder="Hospital Name"
+            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-red-500 transition"
+            required
+          />
 
-        {/* Blood Group */}
-        <select
-          name="bloodGroup"
-          className="border px-4 py-2 rounded"
-          required
-        >
-          <option value="">Select Blood Group</option>
-          <option value="A+">A+</option>
-          <option value="A-">A-</option>
-          <option value="B+">B+</option>
-          <option value="B-">B-</option>
-          <option value="AB+">AB+</option>
-          <option value="AB-">AB-</option>
-          <option value="O+">O+</option>
-          <option value="O-">O-</option>
-        </select>
+          {/* Blood Group */}
+          <select
+            name="bloodGroup"
+            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-red-500 transition"
+            required
+          >
+            <option value="">Select Blood Group</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
 
-        {/* District */}
-        <select
-          name="district"
-          value={selectedDistrict}
-          onChange={(e) => {
-            setSelectedDistrict(e.target.value);
-            setSelectedUpazila("");
-          }}
-          className="border px-4 py-2 rounded"
-          required
-        >
-          <option value="">Select District</option>
-          {districtData.map((d) => (
-            <option key={d.id} value={d.id}>
-              {d.name}
-            </option>
-          ))}
-        </select>
+          {/* District */}
+          <select
+            name="district"
+            value={selectedDistrict}
+            onChange={(e) => {
+              setSelectedDistrict(e.target.value);
+              setSelectedUpazila("");
+            }}
+            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-red-500 transition"
+            required
+          >
+            <option value="">Select District</option>
+            {districtData.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
 
-        {/* Upazila */}
-        <select
-          name="upazila"
-          value={selectedUpazila}
-          onChange={(e) => setSelectedUpazila(e.target.value)}
-          className="border px-4 py-2 rounded"
-          disabled={!selectedDistrict}
-          required
-        >
-          <option value="">Select Upazila</option>
-          {filteredUpazilas.map((u) => (
-            <option key={u.id} value={u.name}>
-              {u.name}
-            </option>
-          ))}
-        </select>
+          {/* Upazila */}
+          <select
+            name="upazila"
+            value={selectedUpazila}
+            onChange={(e) => setSelectedUpazila(e.target.value)}
+            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-red-500 transition disabled:opacity-50"
+            disabled={!selectedDistrict}
+            required
+          >
+            <option value="">Select Upazila</option>
+            {filteredUpazilas.map((u) => (
+              <option key={u.id} value={u.name}>
+                {u.name}
+              </option>
+            ))}
+          </select>
 
-        {/* Submit Button */}
-        <button
-          disabled={loading}
-          className="bg-red-600 text-white py-2 rounded font-semibold hover:bg-red-700 disabled:opacity-50"
-        >
-          {loading ? "Submitting..." : "Request Blood"}
-        </button>
-      </form>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-red-600 text-white py-2 rounded font-semibold hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 transition disabled:opacity-50 shadow-md mt-2"
+          >
+            {loading ? "Submitting..." : "Request Blood"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

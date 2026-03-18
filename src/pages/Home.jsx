@@ -12,242 +12,169 @@ import {
 
 export default function Home() {
   return (
-    <div className="bg-gray-50 text-gray-800">
-      {/* ================= HERO ================= */}
-      <section className="relative min-h-[75vh] bg-gradient-to-br from-red-50 via-white to-red-100 flex items-center overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-center">
-          <div>
-            <span className="inline-block mb-5 text-sm font-semibold text-red-600 bg-red-100 px-5 py-1.5 rounded-full">
-              Trusted Blood Donation Platform
-            </span>
+    <div className="bg-[#fafafa] text-gray-800 overflow-x-hidden">
 
-            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
-              Save Lives <br />
-              <span className="text-red-600">Donate Blood Easily</span>
+      {/* ================= 1. HERO ================= */}
+      {/* Removed min-h-screen and flex items-center to close gaps */}
+      <section className="bg-gradient-to-br from-red-50 via-white to-white overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 pt-10 pb-0 flex flex-col md:flex-row items-center gap-12">
+
+          {/* Text Content */}
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+              Donate Blood <br />
+              <span className="text-red-500">Save Lives ❤️</span>
             </h1>
 
-            <p className="text-gray-600 mb-10 max-w-lg text-lg">
-              BloodMatch connects donors and patients across Bangladesh during
-              emergencies — fast, secure, and reliable.
+            <p className="text-gray-600 mb-8 text-lg max-w-lg mx-auto md:mx-0">
+              Your small action can create a big impact.
             </p>
 
-            <div className="flex flex-wrap gap-5">
-              <Link
-                to="/register"
-                className="bg-red-600 text-white px-9 py-3.5 rounded-full font-semibold shadow-lg hover:bg-red-700 transition"
+            <div className="flex gap-4 justify-center md:justify-start">
+              <Link 
+                to="/register" 
+                className="bg-red-500 text-white px-7 py-3 rounded-full hover:bg-red-600 hover:scale-105 transition shadow-md"
               >
-                Become a Donor
+                Become Donor
               </Link>
-
-              <Link
-                to="/search"
-                className="border-2 border-red-600 text-red-600 px-9 py-3.5 rounded-full font-semibold hover:bg-red-50 transition"
+              <Link 
+                to="/search" 
+                className="border-2 border-gray-200 px-7 py-3 rounded-full hover:border-red-500 hover:text-red-500 hover:scale-105 transition"
               >
-                Find Donors
+                Find Blood
               </Link>
             </div>
           </div>
 
-          <div className="relative flex justify-center items-center">
-            <div className="absolute w-80 h-80 rounded-full bg-red-400 blur-[120px] opacity-40"></div>
+          {/* Image Content */}
+          <div className="relative group flex-1 flex justify-center">
+            {/* Glow Effect */}
+            <div className="absolute w-72 h-72 bg-red-300 blur-[120px] opacity-30 rounded-full group-hover:scale-110 transition duration-500"></div>
+            
+            {/* Image */}
+            <img 
+              src={donation} 
+              alt="Blood Donation" 
+              className="w-full max-w-sm md:max-w-md relative z-10 group-hover:scale-105 transition duration-300" 
+            />
+          </div>
 
-            <div className="relative bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl hover:scale-105 transition">
-              <img
-                src={donation}
-                alt="Blood Donation"
-                className="w-72 animate-float"
-              />
+        </div>
+      </section>
+
+      {/* ================= 2. QUICK ACTION ================= */}
+      {/* Removed top padding (pt-0) to bridge the gap with Hero section */}
+      <section className="pt-12 pb-24 text-center">
+        <SectionTitle title="Quick Actions" />
+        <div className="max-w-4xl mx-auto space-y-6">
+          <GlassCard title="Search Blood" desc="Find donors instantly" link="/search" />
+          <GlassCard title="Become Donor" desc="Join community" link="/register" />
+          <GlassCard title="Emergency Help" desc="Urgent support" link="/request" />
+        </div>
+      </section>
+
+      {/* ================= 3. FEATURES ================= */}
+      <section className="py-24 bg-white text-center">
+        <SectionTitle title="Why Choose Us" />
+        <div className="max-w-4xl mx-auto space-y-6">
+          <ModernCard icon={<FaHeartbeat />} title="Fast Response" desc="Quick matching system" />
+          <ModernCard icon={<FaUserCheck />} title="Verified Donors" desc="Trusted users" />
+          <ModernCard icon={<FaGlobeAsia />} title="Nationwide" desc="Available everywhere" />
+        </div>
+      </section>
+
+      {/* ================= 4. HOW IT WORKS ================= */}
+      <section className="py-24 text-center bg-gray-50">
+        <SectionTitle title="How It Works" />
+        <div className="max-w-3xl mx-auto space-y-6">
+          <StepCard number="1" icon={<FaUserPlus />} title="Register" />
+          <StepCard number="2" icon={<FaClipboardList />} title="Request Blood" />
+          <StepCard number="3" icon={<FaHandsHelping />} title="Match Donor" />
+          <StepCard number="4" icon={<FaHeart />} title="Donate" />
+        </div>
+      </section>
+
+      {/* ================= 5. BLOOD GROUP ================= */}
+      <section className="py-24 text-center">
+        <SectionTitle title="Blood Groups" />
+        <div className="flex flex-wrap justify-center gap-4">
+          {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((b) => (
+            <div key={b} className="px-6 py-3 bg-white rounded-full shadow hover:bg-red-500 hover:text-white hover:scale-110 transition">
+              {b}
             </div>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* ================= FEATURES ================= */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold">Why Choose Us</h2>
-            <div className="w-20 h-1 bg-red-600 mx-auto mt-3 rounded"></div>
-            <p className="text-gray-500 mt-4">
-              A reliable platform connecting donors and patients
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={<FaHeartbeat />}
-              title="Emergency Support"
-              desc="Instant blood donor matching for emergency cases."
-            />
-
-            <FeatureCard
-              icon={<FaUserCheck />}
-              title="Verified Donors"
-              desc="All donors are verified for safety and trust."
-            />
-
-            <FeatureCard
-              icon={<FaGlobeAsia />}
-              title="Nationwide Service"
-              desc="Available across cities and hospitals in Bangladesh."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ================= OUR IMPACT ================= */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold">Our Impact</h2>
-            <div className="w-20 h-1 bg-red-600 mx-auto mt-3 rounded"></div>
-            <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
-              Over the years, our platform has helped thousands of donors and
-              patients. Here’s how we make a difference.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-8">
-            <ImpactCard number="10K+" label="Registered Donors" />
-            <ImpactCard number="3K+" label="Blood Requests" />
-            <ImpactCard number="2K+" label="Lives Saved" />
-            <ImpactCard number="50+" label="Hospitals Connected" />
-          </div>
-        </div>
-      </section>
-
-      {/* ================= HOW IT WORKS ================= */}
-      <section className="bg-white py-24">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-12">How It Works</h2>
-          <p className="text-gray-600 mb-16 max-w-3xl mx-auto">
-            Donating blood is easy and impactful. Follow these simple steps to
-            save a life.
+      {/* ================= 6. TESTIMONIAL ================= */}
+      <section className="py-24 bg-white text-center">
+        <SectionTitle title="Donor Stories" />
+        <div className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow hover:shadow-2xl transition">
+          <p className="italic text-gray-600">
+            "I donated blood and helped save a life. Best feeling ever!"
           </p>
-
-          <div className="grid md:grid-cols-4 gap-8">
-            <StepCard
-              number={1}
-              icon={<FaUserPlus />}
-              title="Register"
-              desc="Create your donor account quickly using your email and basic info."
-            />
-
-            <StepCard
-              number={2}
-              icon={<FaClipboardList />}
-              title="Request Blood"
-              desc="Patients or families can submit blood requests with details like blood group and hospital."
-            />
-
-            <StepCard
-              number={3}
-              icon={<FaHandsHelping />}
-              title="Get Matched"
-              desc="Our system matches donors nearby with the patient in need for immediate response."
-            />
-
-            <StepCard
-              number={4}
-              icon={<FaHeart />}
-              title="Save Life"
-              desc="Reach the hospital, donate blood, and make a real difference in someone's life."
-            />
-          </div>
+          <h4 className="mt-4 text-red-500 font-bold">— Donor</h4>
         </div>
       </section>
 
-      {/* ================= BLOOD GROUPS ================= */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-12">Available Blood Groups</h2>
-
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-5 max-w-3xl mx-auto">
-            {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((b) => (
-              <div
-                key={b}
-                className="bg-white shadow-md border border-red-100 rounded-xl py-5 font-bold text-red-600 hover:bg-red-600 hover:text-white hover:scale-105 transition"
-              >
-                {b}
-              </div>
-            ))}
-          </div>
+      {/* ================= 7. FAQ ================= */}
+      <section className="py-24 bg-gray-50 text-center">
+        <SectionTitle title="FAQs" />
+        <div className="max-w-xl mx-auto space-y-4 text-left">
+          <FaqItem q="Is blood donation safe?" />
+          <FaqItem q="How often can I donate?" />
+          <FaqItem q="Who can donate blood?" />
         </div>
       </section>
 
-      {/* ================= CTA ================= */}
-      <section className="py-24">
-        <div className="max-w-3xl mx-auto px-6">
-          <div
-            className="bg-white border border-black rounded-3xl shadow-lg p-12 text-center 
-                    hover:shadow-2xl hover:scale-105 transition transform duration-300 ease-in-out"
-          >
-            <h2 className="text-4xl font-bold mb-6 text-red-600">
-              Become a Lifesaver Today
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Join our community of blood donors and help save lives. Every
-              donation counts!
-            </p>
-
-            <Link
-              to="/register"
-              className="bg-red-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-red-700 transition"
-            >
-              Register as Donor
-            </Link>
-          </div>
-        </div>
+      {/* ================= 8. CTA ================= */}
+      <section className="py-24 bg-gradient-to-r from-red-500 to-red-600 text-white text-center">
+        <h2 className="text-4xl font-bold mb-6">Be Someone’s Hero </h2>
+        <Link to="/register" className="bg-white text-red-500 px-8 py-3 rounded-full hover:scale-110 transition">
+          Join Now
+        </Link>
       </section>
-      {/* FLOAT ANIMATION */}
-      <style>
-        {`
-        @keyframes float {
-          0%,100% {transform: translateY(0);}
-          50% {transform: translateY(-12px);}
-        }
-        .animate-float{
-          animation: float 4s ease-in-out infinite;
-        }
-        `}
-      </style>
+
     </div>
   );
 }
 
-/* ================= COMPONENTS ================= */
-function FeatureCard({ icon, title, desc }) {
-  return (
-    <div className="bg-white p-9 rounded-2xl shadow-md hover:shadow-2xl transition hover:-translate-y-2 text-center">
-      <div className="text-red-600 text-3xl mb-4 flex justify-center">
-        {icon}
-      </div>
-      <h3 className="font-bold text-xl mb-3">{title}</h3>
-      <p className="text-gray-600">{desc}</p>
-    </div>
-  );
-}
+/* COMPONENTS */
 
-function ImpactCard({ number, label }) {
-  return (
-    <div className="bg-white p-8 rounded-3xl shadow-md hover:shadow-xl transition hover:-translate-y-2 text-center">
-      <h3 className="text-4xl font-bold mb-3 text-red-600">{number}</h3>
-      <p className="text-gray-600 font-medium">{label}</p>
-    </div>
-  );
-}
+const SectionTitle = ({ title }) => (
+  <div className="mb-12">
+    <h2 className="text-4xl font-bold">{title}</h2>
+    <div className="w-20 h-1 bg-red-500 mx-auto mt-4"></div>
+  </div>
+);
 
-function StepCard({ number, icon, title, desc }) {
-  return (
-    <div className="bg-white p-8 rounded-3xl shadow-md hover:shadow-xl transition hover:-translate-y-2 text-center relative">
-      <div className="w-14 h-14 mx-auto mb-4 flex items-center justify-center bg-red-100 text-red-600 rounded-full font-bold text-2xl">
-        {icon}
-      </div>
-      <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
-        {number}
-      </div>
-      <h3 className="font-semibold text-xl mt-6 mb-2">{title}</h3>
-      <p className="text-gray-600">{desc}</p>
+const GlassCard = ({ title, desc, link }) => (
+  <Link to={link} className="block bg-white p-6 rounded-xl shadow hover:shadow-2xl hover:-translate-y-2 transition">
+    <h3 className="font-semibold">{title}</h3>
+    <p className="text-gray-600">{desc}</p>
+  </Link>
+);
+
+const ModernCard = ({ icon, title, desc }) => (
+  <div className="bg-white p-6 rounded-xl shadow hover:shadow-2xl hover:-translate-y-2 transition text-center">
+    <div className="text-red-500 text-2xl mb-2">{icon}</div>
+    <h3 className="font-bold">{title}</h3>
+    <p className="text-gray-600">{desc}</p>
+  </div>
+);
+
+const StepCard = ({ number, icon, title }) => (
+  <div className="bg-white p-6 rounded-xl shadow flex items-center justify-center gap-4 hover:scale-105 transition">
+    <div className="bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded-full">
+      {number}
     </div>
-  );
-}
+    <div className="text-red-500">{icon}</div>
+    <h3>{title}</h3>
+  </div>
+);
+
+const FaqItem = ({ q }) => (
+  <div className="bg-white p-4 rounded shadow hover:shadow-md hover:scale-[1.02] transition cursor-pointer">
+    {q}
+  </div>
+);
